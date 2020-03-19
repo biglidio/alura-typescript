@@ -1,9 +1,9 @@
 class NegotiationController {
 
     constructor(
-        private _inputDate: HTMLInputElement = <HTMLInputElement> document.querySelector('#date'),
-        private _inputQty: HTMLInputElement = <HTMLInputElement> document.querySelector('#qty'),
-        private _inputValue: HTMLInputElement = <HTMLInputElement> document.querySelector('#value'),
+        private _inputDate: JQuery = $('#date'),
+        private _inputQty: JQuery = $('#qty'),
+        private _inputValue: JQuery = $('#value'),
         private _negotiations = new Negotiations(),
         private _negotiationsView = new NegotiationsView("#negotiationsView"),
         private _messageView = new MessageView("#messageView")
@@ -15,9 +15,9 @@ class NegotiationController {
         event.preventDefault();
 
         const negotiation = new Negotiation(
-            new Date(this._inputDate.value.replace(/~/g, ',')),
-            parseInt(this._inputQty.value),
-            parseInt(this._inputValue.value)
+            new Date(this._inputDate.val().replace(/~/g, ',')),
+            parseInt(this._inputQty.val()),
+            parseInt(this._inputValue.val())
         );
 
         this._negotiations.add(negotiation);

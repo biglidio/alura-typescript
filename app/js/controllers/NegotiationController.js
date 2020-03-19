@@ -1,5 +1,5 @@
 class NegotiationController {
-    constructor(_inputDate = document.querySelector('#date'), _inputQty = document.querySelector('#qty'), _inputValue = document.querySelector('#value'), _negotiations = new Negotiations(), _negotiationsView = new NegotiationsView("#negotiationsView"), _messageView = new MessageView("#messageView")) {
+    constructor(_inputDate = $('#date'), _inputQty = $('#qty'), _inputValue = $('#value'), _negotiations = new Negotiations(), _negotiationsView = new NegotiationsView("#negotiationsView"), _messageView = new MessageView("#messageView")) {
         this._inputDate = _inputDate;
         this._inputQty = _inputQty;
         this._inputValue = _inputValue;
@@ -10,7 +10,7 @@ class NegotiationController {
     }
     add(event) {
         event.preventDefault();
-        const negotiation = new Negotiation(new Date(this._inputDate.value.replace(/~/g, ',')), parseInt(this._inputQty.value), parseInt(this._inputValue.value));
+        const negotiation = new Negotiation(new Date(this._inputDate.val().replace(/~/g, ',')), parseInt(this._inputQty.val()), parseInt(this._inputValue.val()));
         this._negotiations.add(negotiation);
         this._negotiationsView.update(this._negotiations);
         this._messageView.update("Negotiations added succesfully!");
