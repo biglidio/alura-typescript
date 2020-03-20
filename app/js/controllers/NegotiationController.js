@@ -1,7 +1,7 @@
 System.register(["../models/index", "../views/index"], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var index_1, index_2, NegotiationController;
+    var index_1, index_2, NegotiationController, WeekDay;
     return {
         setters: [
             function (index_1_1) {
@@ -24,13 +24,29 @@ System.register(["../models/index", "../views/index"], function (exports_1, cont
                 }
                 add(event) {
                     event.preventDefault();
-                    const negotiation = new index_1.Negotiation(new Date(this._inputDate.val().replace(/~/g, ',')), parseInt(this._inputQty.val()), parseInt(this._inputValue.val()));
+                    let date = new Date(this._inputDate.val().replace(/~/g, ','));
+                    if (!this.isBusinessDay(date)) {
+                        this._messageView.update("Only business day!");
+                    }
+                    const negotiation = new index_1.Negotiation(date, parseInt(this._inputQty.val()), parseInt(this._inputValue.val()));
                     this._negotiations.add(negotiation);
                     this._negotiationsView.update(this._negotiations);
                     this._messageView.update("Negotiations added succesfully!");
                 }
+                isBusinessDay(date) {
+                    return date.getDay() != WeekDay.Sat && date.getDay() != WeekDay.Sun;
+                }
             };
             exports_1("NegotiationController", NegotiationController);
+            (function (WeekDay) {
+                WeekDay[WeekDay["Sun"] = 0] = "Sun";
+                WeekDay[WeekDay["Mon"] = 1] = "Mon";
+                WeekDay[WeekDay["Tue"] = 2] = "Tue";
+                WeekDay[WeekDay["Wed"] = 3] = "Wed";
+                WeekDay[WeekDay["Thu"] = 4] = "Thu";
+                WeekDay[WeekDay["Fri"] = 5] = "Fri";
+                WeekDay[WeekDay["Sat"] = 6] = "Sat";
+            })(WeekDay || (WeekDay = {}));
         }
     };
 });

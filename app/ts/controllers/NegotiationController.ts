@@ -17,8 +17,14 @@ export class NegotiationController {
     add(event: Event) {
         event.preventDefault();
 
+        let date = new Date(this._inputDate.val().replace(/~/g, ','));
+
+        if(!this.isBusinessDay(date)) {
+            this._messageView.update("Only business day!");
+        }
+
         const negotiation = new Negotiation(
-            new Date(this._inputDate.val().replace(/~/g, ',')),
+            date,
             parseInt(this._inputQty.val()),
             parseInt(this._inputValue.val())
         );
@@ -28,4 +34,12 @@ export class NegotiationController {
         this._negotiationsView.update(this._negotiations);
         this._messageView.update("Negotiations added succesfully!");
     }
+
+    private isBusinessDay(date: Date) {
+        return date.getDay() != WeekDay.Sat && date.getDay() != WeekDay.Sun; 
+    }
+}
+
+enum WeekDay {
+    Sun, Mon, Tue, Wed, Thu, Fri, Sat
 }
