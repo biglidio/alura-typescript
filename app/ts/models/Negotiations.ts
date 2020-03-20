@@ -1,4 +1,5 @@
 import { Negotiation } from "./Negotiation";
+import { logExecutionTime } from "../helpers/decorators/logExecutionTime";
 
 export class Negotiations {
 
@@ -8,6 +9,7 @@ export class Negotiations {
         this._negotiations.push(negotiation);
     }
 
+    @logExecutionTime(true)
     toArray(): Negotiation[] {
         return ([] as Negotiation[]).concat(this._negotiations);
     }
