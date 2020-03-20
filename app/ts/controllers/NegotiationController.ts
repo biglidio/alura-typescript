@@ -1,4 +1,7 @@
-class NegotiationController {
+import { Negotiations, Negotiation } from "../models/index";
+import { NegotiationsView, MessageView } from "../views/index";
+
+export class NegotiationController {
 
     constructor(
         private _inputDate: JQuery = $('#date'),
