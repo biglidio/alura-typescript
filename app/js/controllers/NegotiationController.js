@@ -1,4 +1,4 @@
-System.register(["../models/index", "../views/index", "../helpers/decorators/domInject"], function (exports_1, context_1) {
+System.register(["../models/index", "../views/index", "../helpers/decorators/index", "../services/NegotiationService"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -7,7 +7,7 @@ System.register(["../models/index", "../views/index", "../helpers/decorators/dom
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
     var __moduleName = context_1 && context_1.id;
-    var index_1, index_2, domInject_1, NegotiationController, WeekDay;
+    var index_1, index_2, index_3, NegotiationService_1, timer, NegotiationController, WeekDay;
     return {
         setters: [
             function (index_1_1) {
@@ -16,20 +16,24 @@ System.register(["../models/index", "../views/index", "../helpers/decorators/dom
             function (index_2_1) {
                 index_2 = index_2_1;
             },
-            function (domInject_1_1) {
-                domInject_1 = domInject_1_1;
+            function (index_3_1) {
+                index_3 = index_3_1;
+            },
+            function (NegotiationService_1_1) {
+                NegotiationService_1 = NegotiationService_1_1;
             }
         ],
         execute: function () {
+            timer = 0;
             NegotiationController = class NegotiationController {
-                constructor(_negotiations = new index_1.Negotiations(), _negotiationsView = new index_2.NegotiationsView("#negotiationsView"), _messageView = new index_2.MessageView("#messageView")) {
+                constructor(_negotiations = new index_1.Negotiations(), _negotiationsView = new index_2.NegotiationsView("#negotiationsView"), _messageView = new index_2.MessageView("#messageView"), _service = new NegotiationService_1.NegotiationService) {
                     this._negotiations = _negotiations;
                     this._negotiationsView = _negotiationsView;
                     this._messageView = _messageView;
+                    this._service = _service;
                     this._negotiationsView.update(this._negotiations);
                 }
-                add(event) {
-                    event.preventDefault();
+                add() {
                     let date = new Date(this._inputDate.val().replace(/~/g, ','));
                     if (!this.isBusinessDay(date)) {
                         this._messageView.update("Only business day!");
@@ -42,16 +46,37 @@ System.register(["../models/index", "../views/index", "../helpers/decorators/dom
                 isBusinessDay(date) {
                     return date.getDay() != WeekDay.Sat && date.getDay() != WeekDay.Sun;
                 }
+                dataImport() {
+                    this._service
+                        .getNegotiations(res => {
+                        if (res.ok) {
+                            return res;
+                        }
+                        else {
+                            throw new Error(res.statusText);
+                        }
+                    })
+                        .then(negotiations => {
+                        negotiations.forEach(negotiation => this._negotiations.add(negotiation));
+                        this._negotiationsView.update(this._negotiations);
+                    });
+                }
             };
             __decorate([
-                domInject_1.domInject("#date")
+                index_3.domInject("#date")
             ], NegotiationController.prototype, "_inputDate", void 0);
             __decorate([
-                domInject_1.domInject("#qty")
+                index_3.domInject("#qty")
             ], NegotiationController.prototype, "_inputQty", void 0);
             __decorate([
-                domInject_1.domInject("#value")
+                index_3.domInject("#value")
             ], NegotiationController.prototype, "_inputValue", void 0);
+            __decorate([
+                index_3.throttle()
+            ], NegotiationController.prototype, "add", null);
+            __decorate([
+                index_3.throttle()
+            ], NegotiationController.prototype, "dataImport", null);
             exports_1("NegotiationController", NegotiationController);
             (function (WeekDay) {
                 WeekDay[WeekDay["Sun"] = 0] = "Sun";

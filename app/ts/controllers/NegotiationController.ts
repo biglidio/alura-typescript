@@ -1,6 +1,9 @@
-import { Negotiations, Negotiation } from "../models/index";
+import { Negotiations, Negotiation, PartialNegotiation } from "../models/index";
 import { NegotiationsView, MessageView } from "../views/index";
-import { domInject } from "../helpers/decorators/domInject";
+import { domInject, throttle } from "../helpers/decorators/index";
+import { NegotiationService } from "../services/NegotiationService";
+
+let timer = 0;
 
 export class NegotiationController {
 
@@ -16,14 +19,14 @@ export class NegotiationController {
     constructor(
         private _negotiations = new Negotiations(),
         private _negotiationsView = new NegotiationsView("#negotiationsView"),
-        private _messageView = new MessageView("#messageView")
+        private _messageView = new MessageView("#messageView"),
+        private _service = new NegotiationService
     ) {
         this._negotiationsView.update(this._negotiations);
     }
 
-    add(event: Event) {
-        event.preventDefault();
-
+    @throttle()
+    add() {
         let date = new Date(this._inputDate.val().replace(/~/g, ','));
 
         if(!this.isBusinessDay(date)) {
@@ -44,6 +47,23 @@ export class NegotiationController {
 
     private isBusinessDay(date: Date) {
         return date.getDay() != WeekDay.Sat && date.getDay() != WeekDay.Sun; 
+    }
+
+    @throttle()
+    dataImport() {
+
+        this._service
+            .getNegotiations(res => {
+                if(res.ok) {
+                    return res;
+                } else {
+                    throw new Error(res.statusText);
+                }
+            })
+            .then(negotiations => {
+                negotiations.forEach(negotiation => this._negotiations.add(negotiation));
+                this._negotiationsView.update(this._negotiations);
+            });
     }
 }
 
