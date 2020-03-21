@@ -25,6 +25,13 @@ System.register(["../helpers/decorators/logExecutionTime"], function (exports_1,
                 toArray() {
                     return [].concat(this._negotiations);
                 }
+                toText() {
+                    console.log("Print negotiations");
+                    console.log(JSON.stringify(this._negotiations));
+                }
+                isEquals(negotiations) {
+                    return JSON.stringify(this._negotiations) == JSON.stringify(negotiations.toArray());
+                }
             };
             __decorate([
                 logExecutionTime_1.logExecutionTime(true)

@@ -9,7 +9,11 @@ export class NegotiationService {
             .then((data: PartialNegotiation[]) => 
                 data
                     .map(item => new Negotiation(new Date(), item.vezes, item.montante))     
-            );
+            )
+            .catch(err => {
+                console.log(err);
+                throw new Error("Impossible to import negotiations");
+            });
     }
 }
 

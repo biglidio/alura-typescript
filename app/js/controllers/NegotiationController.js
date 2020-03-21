@@ -1,4 +1,4 @@
-System.register(["../models/index", "../views/index", "../helpers/decorators/index", "../services/NegotiationService"], function (exports_1, context_1) {
+System.register(["../models/index", "../views/index", "../helpers/decorators/index", "../services/NegotiationService", "../helpers/Utils"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -6,8 +6,16 @@ System.register(["../models/index", "../views/index", "../helpers/decorators/ind
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
+    var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+        return new (P || (P = Promise))(function (resolve, reject) {
+            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+            step((generator = generator.apply(thisArg, _arguments || [])).next());
+        });
+    };
     var __moduleName = context_1 && context_1.id;
-    var index_1, index_2, index_3, NegotiationService_1, timer, NegotiationController, WeekDay;
+    var index_1, index_2, index_3, NegotiationService_1, Utils_1, timer, NegotiationController, WeekDay;
     return {
         setters: [
             function (index_1_1) {
@@ -21,6 +29,9 @@ System.register(["../models/index", "../views/index", "../helpers/decorators/ind
             },
             function (NegotiationService_1_1) {
                 NegotiationService_1 = NegotiationService_1_1;
+            },
+            function (Utils_1_1) {
+                Utils_1 = Utils_1_1;
             }
         ],
         execute: function () {
@@ -40,6 +51,7 @@ System.register(["../models/index", "../views/index", "../helpers/decorators/ind
                     }
                     const negotiation = new index_1.Negotiation(date, parseInt(this._inputQty.val()), parseInt(this._inputValue.val()));
                     this._negotiations.add(negotiation);
+                    Utils_1.print(negotiation, this._negotiations);
                     this._negotiationsView.update(this._negotiations);
                     this._messageView.update("Negotiations added succesfully!");
                 }
@@ -47,18 +59,27 @@ System.register(["../models/index", "../views/index", "../helpers/decorators/ind
                     return date.getDay() != WeekDay.Sat && date.getDay() != WeekDay.Sun;
                 }
                 dataImport() {
-                    this._service
-                        .getNegotiations(res => {
-                        if (res.ok) {
-                            return res;
+                    return __awaiter(this, void 0, void 0, function* () {
+                        try {
+                            const negotiationsToImport = yield this._service
+                                .getNegotiations(res => {
+                                if (res.ok) {
+                                    return res;
+                                }
+                                else {
+                                    throw new Error(res.statusText);
+                                }
+                            });
+                            const negotiationsImported = this._negotiations.toArray();
+                            negotiationsToImport
+                                .filter(negotiation => !negotiationsImported.some(imported => negotiation.isEquals(imported)))
+                                .forEach(negotiation => this._negotiations.add(negotiation));
+                            this._negotiationsView.update(this._negotiations);
+                            err => this._messageView.update(err);
                         }
-                        else {
-                            throw new Error(res.statusText);
+                        catch (err) {
+                            this._messageView.update(err);
                         }
-                    })
-                        .then(negotiations => {
-                        negotiations.forEach(negotiation => this._negotiations.add(negotiation));
-                        this._negotiationsView.update(this._negotiations);
                     });
                 }
             };

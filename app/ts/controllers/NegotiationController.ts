@@ -2,6 +2,7 @@ import { Negotiations, Negotiation, PartialNegotiation } from "../models/index";
 import { NegotiationsView, MessageView } from "../views/index";
 import { domInject, throttle } from "../helpers/decorators/index";
 import { NegotiationService } from "../services/NegotiationService";
+import { print } from "../helpers/Utils";
 
 let timer = 0;
 
@@ -39,7 +40,9 @@ export class NegotiationController {
             parseInt(this._inputValue.val())
         );
 
+        
         this._negotiations.add(negotiation);
+        print(negotiation, this._negotiations);
 
         this._negotiationsView.update(this._negotiations);
         this._messageView.update("Negotiations added succesfully!");
@@ -50,20 +53,32 @@ export class NegotiationController {
     }
 
     @throttle()
-    dataImport() {
+    async dataImport() {
 
-        this._service
-            .getNegotiations(res => {
-                if(res.ok) {
-                    return res;
-                } else {
-                    throw new Error(res.statusText);
-                }
-            })
-            .then(negotiations => {
-                negotiations.forEach(negotiation => this._negotiations.add(negotiation));
-                this._negotiationsView.update(this._negotiations);
-            });
+        try {
+            const negotiationsToImport = await this._service
+                .getNegotiations(res => {
+                    if(res.ok) {
+                        return res;
+                    } else {
+                        throw new Error(res.statusText);
+                    }
+                })
+            const negotiationsImported = this._negotiations.toArray();
+    
+            negotiationsToImport
+                .filter(negotiation => 
+                    !negotiationsImported.some(imported => 
+                        negotiation.isEquals(imported)))
+                .forEach(negotiation => 
+                    this._negotiations.add(negotiation));
+    
+            this._negotiationsView.update(this._negotiations);
+        
+            err => this._messageView.update(err)
+        } catch(err) {
+            this._messageView.update(err);
+        }
     }
 }
 
